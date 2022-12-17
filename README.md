@@ -15,3 +15,10 @@ Go implementation of Lox from the book [Crafting Interpreters](https://craftingi
 - [x] Chapter 4.6 Longer Lexemes
 - [x] Chapter 4.7 Reserved Words and Identifiers
 - [x] Challange 4 Block comments
+
+## Representing Code
+
+- [ ] Chapter 5.1 Context-Free Grammars
+- [ ] Chapter 5.2 Implementing Syntax Trees
+- [ ] Chapter 5.3 Working with Trees
+- [ ] Chapter 5.4 A (Not Very) Pretty Printer
