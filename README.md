@@ -8,9 +8,9 @@ Go implementation of Lox from the book [Crafting Interpreters](https://craftingi
 ## Scanning
 
 - [ ] Chapter 4.1 The Interpreter Framework
-- [ ] Chapter 4.2
-- [ ] Chapter 4.3
-- [ ] Chapter 4.4
-- [ ] Chapter 4.5
-- [ ] Chapter 4.6
-- [ ] Chapter 4.7
+- [ ] Chapter 4.2 Lexemes and Tokens
+- [ ] Chapter 4.3 Regular Languages and Expressions
+- [ ] Chapter 4.4 The Scanner Class
+- [ ] Chapter 4.5 Recognizing Lexemes
+- [ ] Chapter 4.6 Longer Lexemes
+- [ ] Chapter 4.7 Reserved Words and Identifiers
