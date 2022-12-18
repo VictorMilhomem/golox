@@ -159,5 +159,5 @@ func NewToken(t TokenType, lexeme string, literal string, line int) *Token {
 }
 
 func (t *Token) ToString() string {
-	return fmt.Sprintf("{<Type, Lexeme ,Literal>: <%v, %v, %v>}", t.Type.toString(), t.Lexeme, t.Literal)
+	return fmt.Sprintf("<%v, %v, %v>", t.Type.toString(), t.Lexeme, t.Literal)
 }
