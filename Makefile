@@ -1,7 +1,7 @@
-BINARY_NAME=glox.exe
+BINARY_NAME=glox
 
-build:
-	go build -o glox/bin/${BINARY_NAME} glox/main.go
+compile:
+	go build -o glox/bin/${BINARY_NAME}.exe glox/main.go
 
 runexe:
 	./glox/bin/${BINARY_NAME}
@@ -9,3 +9,13 @@ runexe:
 run:
 	go run glox/main.go
 
+build:
+	GOOS=windows GOARCH=amd64 go build -o glox/bin/${BINARY_NAME}-windows.exe glox/main.go
+	GOOS=linux GOARCH=amd64 go build -o glox/bin/${BINARY_NAME}-linux glox/main.go
+	GOOS=darwin GOARCH=amd64 go build -o glox/bin/${BINARY_NAME}-darwin glox/main.go
+
+clean:
+	go clean
+	rm glox/bin/${BINARY_NAME}-darwin
+	rm glox/bin/${BINARY_NAME}-linux
+	rm glox/bin/${BINARY_NAME}-windows.exe
