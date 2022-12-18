@@ -36,7 +36,7 @@ func run(source string) *utils.LoxError {
 	tokens := scanner.ScanTokens()
 
 	for _, token := range tokens {
-		fmt.Println(token)
+		fmt.Println(token.ToString())
 	}
 
 	return nil
