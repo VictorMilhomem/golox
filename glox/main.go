@@ -7,8 +7,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/VictorMilhomem/glox/ast"
 	"github.com/VictorMilhomem/glox/glox/lexer"
 	"github.com/VictorMilhomem/glox/glox/utils"
+	"github.com/VictorMilhomem/glox/test"
 	"github.com/chzyer/readline"
 )
 
@@ -34,10 +36,12 @@ func runPrompt() {
 func run(source string) *utils.LoxError {
 	scanner := lexer.NewScanner(source)
 	tokens := scanner.ScanTokens()
+	parser := ast.NewParser(tokens)
+	expr := parser.Parse()
 
-	for _, token := range tokens {
-		fmt.Println(token.ToString())
-	}
+	astPrinter := &test.AstPrinter{}
+
+	fmt.Println(astPrinter.Print(expr))
 
 	return nil
 }

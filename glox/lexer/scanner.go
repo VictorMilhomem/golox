@@ -134,9 +134,8 @@ func (s *Scanner) scanToken() {
 			s.scanIdetifier()
 		} else {
 			utils.Check(&utils.LoxError{
-				Line:      s.line,
-				Msg:       "Unexpected character",
-				ErrorCode: 65,
+				Line: s.line,
+				Msg:  "Unexpected character",
 			})
 		}
 	}
@@ -210,9 +209,8 @@ func (s *Scanner) scanString() {
 
 	if s.isAtEnd() {
 		utils.Check(&utils.LoxError{
-			Line:      s.line,
-			Msg:       "Unterminated string",
-			ErrorCode: 66,
+			Line: s.line,
+			Msg:  "Unterminated string",
 		})
 	}
 
