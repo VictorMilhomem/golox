@@ -15,7 +15,7 @@ func (e *ParserError) Error() string {
 	if e.token.Type == lexer.EOF {
 		return strconv.Itoa(e.token.Line) + " at end " + e.msg
 	}
-	return strconv.Itoa(e.token.Line) + " at '" + e.token.Lexeme + "'" + e.msg
+	return "Error at Line: " + strconv.Itoa(e.token.Line) + " at '" + e.token.Lexeme + "' " + e.msg
 }
 
 func NewParserError(token lexer.Token, msg string) *ParserError {

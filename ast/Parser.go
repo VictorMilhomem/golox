@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/VictorMilhomem/glox/glox/lexer"
+	"github.com/VictorMilhomem/glox/glox/utils"
 )
 
 type Parser struct {
@@ -99,15 +100,16 @@ func (p *Parser) primary() Expr[Types] {
 		p.consume(lexer.RIGHT_PAREN, "Expected ')' after expression")
 		return NewGrouping(expr)
 	}
-	panic(NewParserError(p.peek(), "Expected expression"))
+	utils.Check(NewParserError(p.peek(), "Expected expression"))
+	return nil
 }
 
 func (p *Parser) consume(tp lexer.TokenType, msg string) lexer.Token {
-	if p.check(tp) {
-		return p.advance()
+	if !p.check(tp) {
+		utils.Check(NewParserError(p.peek(), msg))
 	}
 
-	panic(NewParserError(p.peek(), msg))
+	return p.advance()
 }
 
 func (p *Parser) synchronize() {
