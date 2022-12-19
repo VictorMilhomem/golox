@@ -43,6 +43,7 @@ func defineAst(dir string, basename string, types []string) {
 		defineType(file, basename, structName, fields)
 		structNames = append(structNames, structName)
 	}
+
 	emitLine(file, "type "+basename+"Visitor[T Types] interface{")
 	for _, s := range structNames {
 		defineVisitor(file, basename, s)
@@ -60,26 +61,24 @@ func boilerHeaders(file *os.File, dir string, basename string) {
 	emitLine(file, "    constraints.Ordered | Object")
 	emitLine(file, "}")
 
-	emitLine(file, "type I"+basename+"[T Types] interface {")
+	emitLine(file, "type "+basename+"[T Types] interface {")
 	emitLine(file, "    Accept(visitor "+basename+"Visitor[T]) "+" interface{}")
 	emitLine(file, "}")
 }
 
-func fieldsSplit(file *os.File, basename string, str string) []string {
+func fieldsSplit(file *os.File, basename string, str string) {
 	fields := strings.Split(str, ", ")
-	var values []string
 	for _, field := range fields {
 		t := strings.Split(field, " ")[0]
 		value := strings.Split(field, " ")[1]
-		values = append(values, value)
+
 		if t == basename {
-			t = "I" + basename
+			t = "" + basename
 			t += "[T]"
 		}
 
 		emitLine(file, "    "+UpperCaseFirstChar(value)+" "+t)
 	}
-	return values
 }
 
 func defineVisitor(file *os.File, basename, structName string) {
@@ -97,6 +96,46 @@ func defineType(file *os.File, basename, structName, fields string) {
 	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor "+basename+"Visitor[T]) interface{} {")
 	emitLine(file, "    return visitor."+vis)
 	emitLine(file, "}")
+
+	//func NewGrouping(expr ast.Expr[string]) *ast.Grouping[string] {
+	//	return &ast.Grouping[string]{
+	//		Expression: expr,
+	//	}
+	//}
+	// TODO: Try to generate the constructor
+	emit(file, "func New", structName, "(")
+	// var value string
+	argsSplit(file, basename, fields)
+	emit(file, ") *", structName, "[Types]{", "\n")
+	emit(file, "    return &", structName, "[Types]{", "\n")
+	constructorSplit(file, basename, fields)
+	emitLine(file, "    }")
+	emitLine(file, "}")
+}
+
+func constructorSplit(file *os.File, basename string, str string) {
+	fields := strings.Split(str, ", ")
+	for _, field := range fields {
+		// t := strings.Split(field, " ")[0]
+		value := strings.Split(field, " ")[1]
+
+		emit(file, "    ", UpperCaseFirstChar(value), ": ", value, ",", "\n")
+	}
+}
+
+func argsSplit(file *os.File, basename string, str string) {
+	fields := strings.Split(str, ", ")
+	for _, field := range fields {
+		t := strings.Split(field, " ")[0]
+		value := strings.Split(field, " ")[1]
+
+		if t == basename {
+			t = "" + basename
+			t += "[Types]"
+		}
+
+		emit(file, value, " ", t, ",")
+	}
 }
 
 func emit(file *os.File, codes ...string) {

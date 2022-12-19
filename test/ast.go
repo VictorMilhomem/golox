@@ -10,7 +10,7 @@ import (
 
 type AstPrinter struct{}
 
-func (a *AstPrinter) print(expr ast.IExpr[string]) string {
+func (a *AstPrinter) print(expr ast.Expr[string]) string {
 	return fmt.Sprintf("%v", expr.Accept(a))
 }
 
@@ -18,7 +18,7 @@ func (a *AstPrinter) VisitBinary(expr ast.Binary[string]) interface{} {
 	return a.parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right)
 }
 
-func NewBinary(left ast.IExpr[string], right ast.IExpr[string], token *lexer.Token) *ast.Binary[string] {
+func NewBinary(left ast.Expr[string], right ast.Expr[string], token *lexer.Token) *ast.Binary[string] {
 	return &ast.Binary[string]{
 		Left:     left,
 		Operator: *token,
@@ -30,7 +30,7 @@ func (a *AstPrinter) VisitUnary(expr ast.Unary[string]) interface{} {
 	return a.parenthesize(expr.Operator.Lexeme, expr.Right)
 }
 
-func NewUnary(op *lexer.Token, right ast.IExpr[string]) *ast.Unary[string] {
+func NewUnary(op *lexer.Token, right ast.Expr[string]) *ast.Unary[string] {
 	return &ast.Unary[string]{
 		Operator: *op,
 		Right:    right,
@@ -41,7 +41,7 @@ func (a *AstPrinter) VisitGrouping(expr ast.Grouping[string]) interface{} {
 	return a.parenthesize("group", expr.Expression)
 }
 
-func NewGrouping(expr ast.IExpr[string]) *ast.Grouping[string] {
+func NewGrouping(expr ast.Expr[string]) *ast.Grouping[string] {
 	return &ast.Grouping[string]{
 		Expression: expr,
 	}
@@ -60,7 +60,7 @@ func NewLiteral(value lexer.Object) *ast.Literal[string] {
 	}
 }
 
-func (a *AstPrinter) parenthesize(name string, exprs ...ast.IExpr[string]) string {
+func (a *AstPrinter) parenthesize(name string, exprs ...ast.Expr[string]) string {
 	builder := strings.Builder{}
 
 	builder.WriteString("(" + name)
