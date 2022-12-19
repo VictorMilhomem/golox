@@ -21,7 +21,7 @@ Go implementation of Lox from the book [Crafting Interpreters](https://craftingi
 - [x] Chapter 5.1 Context-Free Grammars
 - [x] Chapter 5.2 Implementing Syntax Trees
 - [x] Chapter 5.3 Working with Trees
-- [ ] Chapter 5.4 A (Not Very) Pretty Printer
+- [x] Chapter 5.4 A (Not Very) Pretty Printer
 
 ## Parsing Expressions
 

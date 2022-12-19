@@ -57,7 +57,7 @@ func boilerHeaders(file *os.File, dir string, basename string) {
 	emitLine(file, "\"golang.org/x/exp/constraints\"")
 	emitLine(file, ")")
 	emitLine(file, "type Types interface{")
-	emitLine(file, "    constraints.Ordered")
+	emitLine(file, "    constraints.Ordered | Object")
 	emitLine(file, "}")
 
 	emitLine(file, "type I"+basename+"[T Types] interface {")
@@ -65,13 +65,13 @@ func boilerHeaders(file *os.File, dir string, basename string) {
 	emitLine(file, "}")
 }
 
-func fieldsSplit(file *os.File, basename string, str string) {
+func fieldsSplit(file *os.File, basename string, str string) []string {
 	fields := strings.Split(str, ", ")
-
+	var values []string
 	for _, field := range fields {
 		t := strings.Split(field, " ")[0]
 		value := strings.Split(field, " ")[1]
-
+		values = append(values, value)
 		if t == basename {
 			t = "I" + basename
 			t += "[T]"
@@ -79,6 +79,7 @@ func fieldsSplit(file *os.File, basename string, str string) {
 
 		emitLine(file, "    "+UpperCaseFirstChar(value)+" "+t)
 	}
+	return values
 }
 
 func defineVisitor(file *os.File, basename, structName string) {
@@ -109,10 +110,7 @@ func emit(file *os.File, codes ...string) {
 }
 
 func emitLine(file *os.File, code string) {
-	_, err := file.WriteString(code + "\n")
-	if err != nil {
-		log.Fatalln(err)
-	}
+	emit(file, code, "\n")
 }
 
 func UpperCaseFirstChar(str string) string {
