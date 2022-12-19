@@ -10,7 +10,6 @@ import (
 	"github.com/VictorMilhomem/glox/ast"
 	"github.com/VictorMilhomem/glox/glox/lexer"
 	"github.com/VictorMilhomem/glox/glox/utils"
-	"github.com/VictorMilhomem/glox/test"
 	"github.com/chzyer/readline"
 )
 
@@ -39,9 +38,9 @@ func run(source string) *utils.LoxError {
 	parser := ast.NewParser(tokens)
 	expr := parser.Parse()
 
-	astPrinter := &test.AstPrinter{}
+	interpreter := &ast.Interpreter{}
 
-	fmt.Println(astPrinter.Print(expr))
+	interpreter.Interpret(expr)
 
 	return nil
 }

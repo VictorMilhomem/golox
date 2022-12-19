@@ -32,10 +32,10 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 
 ## Evaluating Expressions
 
-- [ ] Chapter 7.1 Representing Values
-- [ ] Chapter 7.2 Evaluating Expressions
-- [ ] Chapter 7.3 Runtime Errors
-- [ ] Chapter 7.4 Hooking Up the Interpreter
+- [x] Chapter 7.1 Representing Values
+- [x] Chapter 7.2 Evaluating Expressions
+- [x] Chapter 7.3 Runtime Errors
+- [x] Chapter 7.4 Hooking Up the Interpreter
 
 ## Statements and State
 
