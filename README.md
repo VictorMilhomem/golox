@@ -1,6 +1,6 @@
 # Golox
 
-Go implementation of Lox from the book [Crafting Interpreters](https://craftinginterpreters.com/)
+Go implementation of Lox a Java interpreter from the book [Crafting Interpreters](https://craftinginterpreters.com/)
 
 
 # TODO List 
