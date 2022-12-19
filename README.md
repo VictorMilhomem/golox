@@ -25,10 +25,10 @@ Go implementation of Lox from the book [Crafting Interpreters](https://craftingi
 
 ## Parsing Expressions
 
-- [ ] Chapter 6.1 Ambiguity and the Parsing Game
-- [ ] Chapter 6.2 Recursive Descent Parsing
-- [ ] Chapter 6.3 Syntax Errors
-- [ ] Chapter 6.4 Wiring up the Parser
+- [x] Chapter 6.1 Ambiguity and the Parsing Game
+- [x] Chapter 6.2 Recursive Descent Parsing
+- [x] Chapter 6.3 Syntax Errors
+- [x] Chapter 6.4 Wiring up the Parser
 
 ## Evaluating Expressions
 
