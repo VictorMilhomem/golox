@@ -51,11 +51,6 @@ func defineAst(dir string, basename string, types []string) {
 }
 
 func boilerHeaders(file *os.File, dir string, basename string) {
-	//type ExprS[T Types] struct {
-	//	expr *Expr[T]
-	//	Types interface{}
-	//}
-
 	emitLine(file, "package "+dir)
 	emitLine(file, "import(")
 	emitLine(file, ". \"github.com/VictorMilhomem/glox/glox/lexer\"")
@@ -103,10 +98,13 @@ func defineType(file *os.File, basename, structName, fields string) {
 	emitLine(file, "}")
 }
 
-func emit(file *os.File, code string) {
-	_, err := file.WriteString(code)
-	if err != nil {
-		log.Fatalln(err)
+func emit(file *os.File, codes ...string) {
+	for _, code := range codes {
+		_, err := file.WriteString(code)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 	}
 }
 
