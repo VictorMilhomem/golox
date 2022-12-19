@@ -149,7 +149,7 @@ type Token struct {
 	Line    int
 }
 
-func NewToken(t TokenType, lexeme string, literal string, line int) *Token {
+func NewToken(t TokenType, lexeme string, literal Object, line int) *Token {
 	return &Token{
 		Type:    t,
 		Lexeme:  lexeme,

@@ -35,31 +35,38 @@ func defineAst(dir string, basename string, types []string) {
 		log.Fatalln(err)
 	}
 	defer file.Close()
+	boilerHeaders(file, dir, basename)
+	var structNames []string
+	for _, t := range types {
+		structName := strings.Trim(strings.Split(t, ":")[0], " ")
+		fields := strings.Trim(strings.Split(t, ":")[1], " ")
+		defineType(file, basename, structName, fields)
+		structNames = append(structNames, structName)
+	}
+	emitLine(file, "type "+basename+"Visitor[T Types] interface{")
+	for _, s := range structNames {
+		defineVisitor(file, basename, s)
+	}
+	emitLine(file, "}")
+}
+
+func boilerHeaders(file *os.File, dir string, basename string) {
+	//type ExprS[T Types] struct {
+	//	expr *Expr[T]
+	//	Types interface{}
+	//}
 
 	emitLine(file, "package "+dir)
 	emitLine(file, "import(")
 	emitLine(file, ". \"github.com/VictorMilhomem/glox/glox/lexer\"")
 	emitLine(file, "\"golang.org/x/exp/constraints\"")
 	emitLine(file, ")")
-	emitLine(file, "type Node interface{")
+	emitLine(file, "type Types interface{")
 	emitLine(file, "    constraints.Ordered")
 	emitLine(file, "}")
 
-	emitLine(file, "type "+basename+"[T Node] interface {")
-	emitLine(file, "    Accept(visitor "+basename+"Visitor[T]) *"+basename+"[T]")
-	emitLine(file, "}")
-	var structNames []string
-	for _, t := range types {
-		structName := strings.Trim(strings.Split(t, ":")[0], " ")
-		fields := strings.Trim(strings.Split(t, ":")[1], " ")
-		defineType(file, basename, structName, fields)
-		// defineVisitor(file, basename, structName, t)
-		structNames = append(structNames, structName)
-	}
-	emitLine(file, "type "+basename+"Visitor[T Node] interface{")
-	for _, s := range structNames {
-		defineVisitor(file, basename, s)
-	}
+	emitLine(file, "type I"+basename+"[T Types] interface {")
+	emitLine(file, "    Accept(visitor "+basename+"Visitor[T]) "+" interface{}")
 	emitLine(file, "}")
 }
 
@@ -71,26 +78,27 @@ func fieldsSplit(file *os.File, basename string, str string) {
 		value := strings.Split(field, " ")[1]
 
 		if t == basename {
+			t = "I" + basename
 			t += "[T]"
 		}
 
-		emitLine(file, "    "+UpperCaseFirstChar(value)+" *"+t)
+		emitLine(file, "    "+UpperCaseFirstChar(value)+" "+t)
 	}
 }
 
 func defineVisitor(file *os.File, basename, structName string) {
-	var genVis string = "visit" + structName + "(" + strings.ToLower(basename) + " *" + structName + "[T]) *" + basename + "[T]"
+	var genVis string = "Visit" + structName + "(" + strings.ToLower(basename) + " " + structName + "[T]) interface{}"
 	emitLine(file, "    "+genVis)
 }
 
 func defineType(file *os.File, basename, structName, fields string) {
-	var vis string = "visit" + structName + "(v)"
+	var vis string = "Visit" + structName + "(*v)"
 
-	emitLine(file, "type "+structName+"[T Node] struct {")
+	emitLine(file, "type "+structName+"[T Types] struct {")
 	fieldsSplit(file, basename, fields)
 	emitLine(file, "}")
 
-	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor "+basename+"Visitor[T]) *"+basename+"[T] {")
+	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor "+basename+"Visitor[T]) interface{} {")
 	emitLine(file, "    return visitor."+vis)
 	emitLine(file, "}")
 }

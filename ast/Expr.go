@@ -3,42 +3,42 @@ import(
 . "github.com/VictorMilhomem/glox/glox/lexer"
 "golang.org/x/exp/constraints"
 )
-type Node interface{
+type Types interface{
     constraints.Ordered
 }
-type Expr[T Node] interface {
-    Accept(visitor ExprVisitor[T]) *Expr[T]
+type IExpr[T Types] interface {
+    Accept(visitor ExprVisitor[T])  interface{}
 }
-type Binary[T Node] struct {
-    Left *Expr[T]
-    Operator *Token
-    Right *Expr[T]
+type Binary[T Types] struct {
+    Left IExpr[T]
+    Operator Token
+    Right IExpr[T]
 }
-func (v *Binary[T])Accept(visitor ExprVisitor[T]) *Expr[T] {
-    return visitor.visitBinary(v)
+func (v *Binary[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitBinary(*v)
 }
-type Grouping[T Node] struct {
-    Expression *Expr[T]
+type Grouping[T Types] struct {
+    Expression IExpr[T]
 }
-func (v *Grouping[T])Accept(visitor ExprVisitor[T]) *Expr[T] {
-    return visitor.visitGrouping(v)
+func (v *Grouping[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitGrouping(*v)
 }
-type Literal[T Node] struct {
-    Value *Object
+type Literal[T Types] struct {
+    Value Object
 }
-func (v *Literal[T])Accept(visitor ExprVisitor[T]) *Expr[T] {
-    return visitor.visitLiteral(v)
+func (v *Literal[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitLiteral(*v)
 }
-type Unary[T Node] struct {
-    Operator *Token
-    Right *Expr[T]
+type Unary[T Types] struct {
+    Operator Token
+    Right IExpr[T]
 }
-func (v *Unary[T])Accept(visitor ExprVisitor[T]) *Expr[T] {
-    return visitor.visitUnary(v)
+func (v *Unary[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitUnary(*v)
 }
-type ExprVisitor[T Node] interface{
-    visitBinary(expr *Binary[T]) *Expr[T]
-    visitGrouping(expr *Grouping[T]) *Expr[T]
-    visitLiteral(expr *Literal[T]) *Expr[T]
-    visitUnary(expr *Unary[T]) *Expr[T]
+type ExprVisitor[T Types] interface{
+    VisitBinary(expr Binary[T]) interface{}
+    VisitGrouping(expr Grouping[T]) interface{}
+    VisitLiteral(expr Literal[T]) interface{}
+    VisitUnary(expr Unary[T]) interface{}
 }
