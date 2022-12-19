@@ -46,7 +46,7 @@ func defineAst(dir string, basename string, types []string) {
 	emitLine(file, "}")
 
 	emitLine(file, "type "+basename+"[T Node] interface {")
-	emitLine(file, "    Accept(visitor ExprVisitor[T]) T")
+	emitLine(file, "    Accept(visitor "+basename+"Visitor[T]) *"+basename+"[T]")
 	emitLine(file, "}")
 	var structNames []string
 	for _, t := range types {
@@ -79,8 +79,7 @@ func fieldsSplit(file *os.File, basename string, str string) {
 }
 
 func defineVisitor(file *os.File, basename, structName string) {
-	var genVis string = "visit" + structName + "(" + strings.ToLower(basename) + " *" + structName + "[T])T"
-
+	var genVis string = "visit" + structName + "(" + strings.ToLower(basename) + " *" + structName + "[T]) *" + basename + "[T]"
 	emitLine(file, "    "+genVis)
 }
 
@@ -91,7 +90,7 @@ func defineType(file *os.File, basename, structName, fields string) {
 	fieldsSplit(file, basename, fields)
 	emitLine(file, "}")
 
-	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor ExprVisitor[T]) T {")
+	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor "+basename+"Visitor[T]) *"+basename+"[T] {")
 	emitLine(file, "    return visitor."+vis)
 	emitLine(file, "}")
 }
