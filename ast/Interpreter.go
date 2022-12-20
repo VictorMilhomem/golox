@@ -19,8 +19,14 @@ func NewInterpreter() *Interpreter {
 	}
 }
 
-func (i *Interpreter) Interpret(statements []Stmt[Types]) {
+func (i *Interpreter) Interpret(statements []Stmt[Types], repl bool) {
 	for _, stmt := range statements {
+		s, ok := stmt.(*Expression[Types])
+		if ok && repl {
+			value := i.evaluate(s.Expression)
+			fmt.Println(i.stringify(value))
+			continue
+		}
 		i.execute(stmt)
 	}
 }
