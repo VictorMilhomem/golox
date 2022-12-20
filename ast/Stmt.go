@@ -5,6 +5,17 @@ import(
 type Stmt[T Types] interface {
     Accept(visitor StmtVisitor[T])  interface{}
 }
+type Block[T Types] struct {
+    Statements []Stmt[Types]
+}
+func (v *Block[T])Accept(visitor StmtVisitor[T]) interface{} {
+    return visitor.VisitBlock(*v)
+}
+func NewBlock(statements []Stmt[Types],) *Block[Types]{
+    return &Block[Types]{
+    Statements: statements,
+    }
+}
 type Expression[T Types] struct {
     Expression Expr[T]
 }
@@ -41,6 +52,7 @@ func NewVar(name Token,initializer Expr[Types],) *Var[Types]{
     }
 }
 type StmtVisitor[T Types] interface{
+    VisitBlock(stmt Block[T]) interface{}
     VisitExpression(stmt Expression[T]) interface{}
     VisitPrint(stmt Print[T]) interface{}
     VisitVar(stmt Var[T]) interface{}

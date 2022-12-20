@@ -43,7 +43,7 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 - [x] Chapter 8.2 Global Variables
 - [x] Chapter 8.3 Environments
 - [x] Chapter 8.4 Assignment
-- [ ] Chapter 8.5 Scope
+- [x] Chapter 8.5 Scope
 
 ## Control Flow
 

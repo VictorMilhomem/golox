@@ -6,13 +6,20 @@ import (
 )
 
 type Environment struct {
-	enclosing interface{}
+	enclosing *Environment
 	Values    map[string]Types
 }
 
 func NewEnvironment() *Environment {
 	return &Environment{
 		enclosing: nil,
+		Values:    make(map[string]Types),
+	}
+}
+
+func NewEnvironmentEnclosing(enclose *Environment) *Environment {
+	return &Environment{
+		enclosing: enclose,
 		Values:    make(map[string]Types),
 	}
 }
@@ -26,6 +33,9 @@ func (e *Environment) Get(name lexer.Token) Types {
 	if ok {
 		return value
 	}
+	if e.enclosing != nil {
+		return e.enclosing.Get(name)
+	}
 	utils.Check(NewRuntimeError(name, "Undefined variable '"+name.Lexeme+"' "))
 	return nil
 }
@@ -36,5 +46,11 @@ func (e *Environment) Assign(name lexer.Token, value Types) {
 		e.Values[name.Lexeme] = value
 		return
 	}
+
+	if e.enclosing != nil {
+		e.enclosing.Assign(name, value)
+		return
+	}
+
 	utils.Check(NewRuntimeError(name, "Undefined variable '"+name.Lexeme+"'"))
 }

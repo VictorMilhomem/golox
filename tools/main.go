@@ -34,6 +34,7 @@ func main() {
 	}
 
 	stmts := []string{
+		"Block      : []Stmt[Types] statements",
 		"Expression : Expr expression",
 		"Print      : Expr expression",
 		"Var        : Token name, Expr initializer",

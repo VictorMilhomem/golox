@@ -46,7 +46,20 @@ func (p *Parser) statement() Stmt[Types] {
 	if p.match(lexer.PRINT) {
 		return p.printStatement()
 	}
+	if p.match(lexer.LEFT_BRACE) {
+		return NewBlock(p.block())
+	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) block() []Stmt[Types] {
+	var statements []Stmt[Types]
+
+	for !p.check(lexer.RIGHT_BRACE) && !p.isAtEnd() {
+		statements = append(statements, p.declaration())
+	}
+	p.consume(lexer.RIGHT_BRACE, "Expect '}' after block")
+	return statements
 }
 
 func (p *Parser) printStatement() Stmt[Types] {

@@ -117,6 +117,20 @@ func (i *Interpreter) VisitVariable(expr Variable[Types]) interface{} {
 * VISIT STATEMENTS
  */
 
+func (i *Interpreter) VisitBlock(stmt Block[Types]) interface{} {
+	i.executeBlock(stmt.Statements, NewEnvironmentEnclosing(i.env))
+	return nil
+}
+
+func (i *Interpreter) executeBlock(stmts []Stmt[Types], env *Environment) {
+	previous := i.env
+	i.env = env
+	for _, statement := range stmts {
+		i.execute(statement)
+	}
+	i.env = previous
+}
+
 func (i *Interpreter) VisitExpression(stmt Expression[Types]) interface{} {
 	i.evaluate(stmt.Expression)
 	return nil
