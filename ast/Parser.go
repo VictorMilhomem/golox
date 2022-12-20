@@ -17,16 +17,69 @@ func NewParser(t []lexer.Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() Expr[Types] {
-	expr := p.expression()
-	if expr != nil {
-		return expr
+func (p *Parser) Parse() []Stmt[Types] {
+	var statements []Stmt[Types]
+	for !p.isAtEnd() {
+		statements = append(statements, p.declaration())
 	}
-	return nil
+	return statements
+}
+
+func (p *Parser) declaration() Stmt[Types] {
+	if p.match(lexer.VAR) {
+		return p.varDeclaration()
+	}
+	return p.statement()
+}
+
+func (p *Parser) varDeclaration() Stmt[Types] {
+	name := p.consume(lexer.IDENTIFIER, "Expected variable name")
+	var initializer Expr[Types]
+	if p.match(lexer.EQUAL) {
+		initializer = p.expression()
+	}
+	p.consume(lexer.SEMICOLON, "Expected ',' after variable declaration")
+	return NewVar(name, initializer)
+}
+
+func (p *Parser) statement() Stmt[Types] {
+	if p.match(lexer.PRINT) {
+		return p.printStatement()
+	}
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() Stmt[Types] {
+	value := p.expression()
+	p.consume(lexer.SEMICOLON, "Expect ';' after value")
+	return NewPrint(value)
+}
+
+func (p *Parser) expressionStatement() Stmt[Types] {
+	expr := p.expression()
+	p.consume(lexer.SEMICOLON, "Expect ';' after expression")
+	return NewExpression(expr)
 }
 
 func (p *Parser) expression() Expr[Types] {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *Parser) assignment() Expr[Types] {
+	expr := p.equality()
+
+	if p.match(lexer.EQUAL) {
+		equals := p.previous()
+		value := p.assignment()
+		n, ok := expr.(*Variable[Types])
+		if ok {
+			name := n.Name
+			return NewAssign(name, value)
+		}
+		utils.Check(NewParserError(equals, "Invalid assingment target"))
+	}
+
+	return expr
 }
 
 func (p *Parser) equality() Expr[Types] {
@@ -94,7 +147,9 @@ func (p *Parser) primary() Expr[Types] {
 	if p.match(lexer.NUMBER, lexer.STRING) {
 		return NewLiteral(p.previous().Literal)
 	}
-
+	if p.match(lexer.IDENTIFIER) {
+		return NewVariable(p.previous())
+	}
 	if p.match(lexer.LEFT_PAREN) {
 		expr := p.expression()
 		p.consume(lexer.RIGHT_PAREN, "Expected ')' after expression")
@@ -106,6 +161,7 @@ func (p *Parser) primary() Expr[Types] {
 
 func (p *Parser) consume(tp lexer.TokenType, msg string) lexer.Token {
 	if !p.check(tp) {
+		p.synchronize()
 		utils.Check(NewParserError(p.peek(), msg))
 	}
 

@@ -9,6 +9,19 @@ type Types interface{
 type Expr[T Types] interface {
     Accept(visitor ExprVisitor[T])  interface{}
 }
+type Assign[T Types] struct {
+    Name Token
+    Value Expr[T]
+}
+func (v *Assign[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitAssign(*v)
+}
+func NewAssign(name Token,value Expr[Types],) *Assign[Types]{
+    return &Assign[Types]{
+    Name: name,
+    Value: value,
+    }
+}
 type Binary[T Types] struct {
     Left Expr[T]
     Operator Token
@@ -59,9 +72,22 @@ func NewUnary(operator Token,right Expr[Types],) *Unary[Types]{
     Right: right,
     }
 }
+type Variable[T Types] struct {
+    Name Token
+}
+func (v *Variable[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitVariable(*v)
+}
+func NewVariable(name Token,) *Variable[Types]{
+    return &Variable[Types]{
+    Name: name,
+    }
+}
 type ExprVisitor[T Types] interface{
+    VisitAssign(expr Assign[T]) interface{}
     VisitBinary(expr Binary[T]) interface{}
     VisitGrouping(expr Grouping[T]) interface{}
     VisitLiteral(expr Literal[T]) interface{}
     VisitUnary(expr Unary[T]) interface{}
+    VisitVariable(expr Variable[T]) interface{}
 }

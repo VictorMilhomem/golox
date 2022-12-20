@@ -8,6 +8,12 @@ import (
 	"unicode"
 )
 
+// TODO: It's very bad but working on a better solution
+var (
+	defined   bool = false
+	basenames []string
+)
+
 func main() {
 	args := os.Args[1:]
 
@@ -18,13 +24,24 @@ func main() {
 	if err := os.Mkdir(dir, os.ModePerm); err != nil {
 		fmt.Println("")
 	}
-	types := []string{
+	expr := []string{
+		"Assign   : Token name, Expr value",
 		"Binary   : Expr left, Token operator, Expr right",
 		"Grouping : Expr expression",
 		"Literal  : Object value",
 		"Unary    : Token operator, Expr right",
+		"Variable : Token name",
 	}
-	defineAst(dir, "Expr", types)
+
+	stmts := []string{
+		"Expression : Expr expression",
+		"Print      : Expr expression",
+		"Var        : Token name, Expr initializer",
+	}
+
+	basenames = append(basenames, "Expr", "Stmt")
+	defineAst(dir, "Expr", expr)
+	defineAst(dir, "Stmt", stmts)
 }
 
 func defineAst(dir string, basename string, types []string) {
@@ -53,28 +70,37 @@ func defineAst(dir string, basename string, types []string) {
 
 func boilerHeaders(file *os.File, dir string, basename string) {
 	emitLine(file, "package "+dir)
-	emitLine(file, "import(")
-	emitLine(file, ". \"github.com/VictorMilhomem/glox/glox/lexer\"")
-	emitLine(file, "\"golang.org/x/exp/constraints\"")
-	emitLine(file, ")")
-	emitLine(file, "type Types interface{")
-	emitLine(file, "    constraints.Ordered | Object")
-	emitLine(file, "}")
+	if !defined {
+		emitLine(file, "import(")
+		emitLine(file, ". \"github.com/VictorMilhomem/glox/glox/lexer\"")
+		emitLine(file, "\"golang.org/x/exp/constraints\"")
+		emitLine(file, ")")
+		emitLine(file, "type Types interface{")
+		emitLine(file, "    constraints.Ordered | Object")
+		emitLine(file, "}")
+		defined = !defined
+	} else {
+		emitLine(file, "import(")
+		emitLine(file, ". \"github.com/VictorMilhomem/glox/glox/lexer\"")
+		emitLine(file, ")")
+	}
 
 	emitLine(file, "type "+basename+"[T Types] interface {")
 	emitLine(file, "    Accept(visitor "+basename+"Visitor[T]) "+" interface{}")
 	emitLine(file, "}")
 }
 
-func fieldsSplit(file *os.File, basename string, str string) {
+func fieldsSplit(file *os.File, str string) {
 	fields := strings.Split(str, ", ")
 	for _, field := range fields {
 		t := strings.Split(field, " ")[0]
 		value := strings.Split(field, " ")[1]
 
-		if t == basename {
-			t = "" + basename
-			t += "[T]"
+		for _, basename := range basenames {
+			if t == basename {
+				t = "" + basename
+				t += "[T]"
+			}
 		}
 
 		emitLine(file, "    "+UpperCaseFirstChar(value)+" "+t)
@@ -90,19 +116,13 @@ func defineType(file *os.File, basename, structName, fields string) {
 	var vis string = "Visit" + structName + "(*v)"
 
 	emitLine(file, "type "+structName+"[T Types] struct {")
-	fieldsSplit(file, basename, fields)
+	fieldsSplit(file, fields)
 	emitLine(file, "}")
 
 	emitLine(file, "func (v *"+structName+"[T])"+"Accept(visitor "+basename+"Visitor[T]) interface{} {")
 	emitLine(file, "    return visitor."+vis)
 	emitLine(file, "}")
 
-	//func NewGrouping(expr ast.Expr[string]) *ast.Grouping[string] {
-	//	return &ast.Grouping[string]{
-	//		Expression: expr,
-	//	}
-	//}
-	// TODO: Try to generate the constructor
 	emit(file, "func New", structName, "(")
 	// var value string
 	argsSplit(file, basename, fields)
@@ -129,9 +149,11 @@ func argsSplit(file *os.File, basename string, str string) {
 		t := strings.Split(field, " ")[0]
 		value := strings.Split(field, " ")[1]
 
-		if t == basename {
-			t = "" + basename
-			t += "[Types]"
+		for _, basename := range basenames {
+			if t == basename {
+				t = "" + basename
+				t += "[Types]"
+			}
 		}
 
 		emit(file, value, " ", t, ",")

@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/VictorMilhomem/glox/ast"
 	"github.com/VictorMilhomem/glox/glox/lexer"
@@ -14,10 +13,10 @@ import (
 )
 
 func runFile(fpath string) {
-	str := strings.NewReader(path.Base(fpath))
-	bytes, err := io.ReadAll(str)
+	bytes, err := ioutil.ReadFile(path.Base(fpath))
+	source := string(bytes)
 	utils.Check(err)
-	run(string(bytes[:]))
+	run(source)
 }
 
 func runPrompt() {
@@ -36,11 +35,11 @@ func run(source string) *utils.LoxError {
 	scanner := lexer.NewScanner(source)
 	tokens := scanner.ScanTokens()
 	parser := ast.NewParser(tokens)
-	expr := parser.Parse()
+	statements := parser.Parse()
 
-	interpreter := &ast.Interpreter{}
+	interpreter := ast.NewInterpreter()
 
-	interpreter.Interpret(expr)
+	interpreter.Interpret(statements)
 
 	return nil
 }

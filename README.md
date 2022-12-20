@@ -39,10 +39,10 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 
 ## Statements and State
 
-- [ ] Chapter 8.1 Statements
-- [ ] Chapter 8.2 Global Variables
-- [ ] Chapter 8.3 Environments
-- [ ] Chapter 8.4 Assignment
+- [x] Chapter 8.1 Statements
+- [x] Chapter 8.2 Global Variables
+- [x] Chapter 8.3 Environments
+- [x] Chapter 8.4 Assignment
 - [ ] Chapter 8.5 Scope
 
 ## Control Flow

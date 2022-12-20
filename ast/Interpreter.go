@@ -9,12 +9,29 @@ import (
 	"github.com/VictorMilhomem/glox/glox/utils"
 )
 
-type Interpreter struct{}
-
-func (i *Interpreter) Interpret(expr Expr[Types]) {
-	value := i.evaluate(expr)
-	fmt.Println(i.stringify(value))
+type Interpreter struct {
+	env *Environment
 }
+
+func NewInterpreter() *Interpreter {
+	return &Interpreter{
+		env: NewEnvironment(),
+	}
+}
+
+func (i *Interpreter) Interpret(statements []Stmt[Types]) {
+	for _, stmt := range statements {
+		i.execute(stmt)
+	}
+}
+
+func (i *Interpreter) execute(stmt Stmt[Types]) {
+	stmt.Accept(i)
+}
+
+/*
+* VISIT EXPRESSIONS
+ */
 
 func (i *Interpreter) VisitLiteral(expr Literal[Types]) interface{} {
 	return expr.Value
@@ -34,6 +51,12 @@ func (i *Interpreter) VisitUnary(expr Unary[Types]) interface{} {
 		return -float64(right.(float64))
 	}
 	return nil
+}
+
+func (i *Interpreter) VisitAssign(expr Assign[Types]) interface{} {
+	value := i.evaluate(expr.Value)
+	i.env.Assign(expr.Name, value)
+	return value
 }
 
 func (i *Interpreter) VisitBinary(expr Binary[Types]) interface{} {
@@ -83,6 +106,34 @@ func (i *Interpreter) VisitBinary(expr Binary[Types]) interface{} {
 		return float64(left.(float64)) * float64(right.(float64))
 	}
 
+	return nil
+}
+
+func (i *Interpreter) VisitVariable(expr Variable[Types]) interface{} {
+	return i.env.Get(expr.Name)
+}
+
+/*
+* VISIT STATEMENTS
+ */
+
+func (i *Interpreter) VisitExpression(stmt Expression[Types]) interface{} {
+	i.evaluate(stmt.Expression)
+	return nil
+}
+
+func (i *Interpreter) VisitPrint(stmt Print[Types]) interface{} {
+	value := i.evaluate(stmt.Expression)
+	fmt.Println(i.stringify(value))
+	return nil
+}
+
+func (i *Interpreter) VisitVar(stmt Var[Types]) interface{} {
+	var value Types
+	if stmt.Initializer != nil {
+		value = i.evaluate(stmt.Initializer)
+	}
+	i.env.Define(stmt.Name.Lexeme, value)
 	return nil
 }
 
