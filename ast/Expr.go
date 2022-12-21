@@ -59,6 +59,21 @@ func NewLiteral(value Object,) *Literal[Types]{
     Value: value,
     }
 }
+type Logical[T Types] struct {
+    Left Expr[T]
+    Operator Token
+    Right Expr[T]
+}
+func (v *Logical[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitLogical(*v)
+}
+func NewLogical(left Expr[Types],operator Token,right Expr[Types],) *Logical[Types]{
+    return &Logical[Types]{
+    Left: left,
+    Operator: operator,
+    Right: right,
+    }
+}
 type Unary[T Types] struct {
     Operator Token
     Right Expr[T]
@@ -88,6 +103,7 @@ type ExprVisitor[T Types] interface{
     VisitBinary(expr Binary[T]) interface{}
     VisitGrouping(expr Grouping[T]) interface{}
     VisitLiteral(expr Literal[T]) interface{}
+    VisitLogical(expr Logical[T]) interface{}
     VisitUnary(expr Unary[T]) interface{}
     VisitVariable(expr Variable[T]) interface{}
 }

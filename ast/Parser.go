@@ -43,6 +43,9 @@ func (p *Parser) varDeclaration() Stmt[Types] {
 }
 
 func (p *Parser) statement() Stmt[Types] {
+	if p.match(lexer.IF) {
+		return p.ifStatement()
+	}
 	if p.match(lexer.PRINT) {
 		return p.printStatement()
 	}
@@ -50,6 +53,19 @@ func (p *Parser) statement() Stmt[Types] {
 		return NewBlock(p.block())
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) ifStatement() Stmt[Types] {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' after 'if'")
+	condition := p.expression()
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after if condition")
+	thenBranch := p.statement()
+	var elseBranch Stmt[Types] = nil
+	if p.match(lexer.ELSE) {
+		elseBranch = p.statement()
+	}
+
+	return NewIf(condition, thenBranch, elseBranch)
 }
 
 func (p *Parser) block() []Stmt[Types] {
@@ -79,7 +95,7 @@ func (p *Parser) expression() Expr[Types] {
 }
 
 func (p *Parser) assignment() Expr[Types] {
-	expr := p.equality()
+	expr := p.or()
 
 	if p.match(lexer.EQUAL) {
 		equals := p.previous()
@@ -92,6 +108,27 @@ func (p *Parser) assignment() Expr[Types] {
 		utils.Check(NewParserError(equals, "Invalid assingment target"))
 	}
 
+	return expr
+}
+
+func (p *Parser) or() Expr[Types] {
+	expr := p.and()
+
+	for p.match(lexer.OR) {
+		operator := p.previous()
+		right := p.and()
+		expr = NewLogical(expr, operator, right)
+	}
+	return expr
+}
+
+func (p *Parser) and() Expr[Types] {
+	expr := p.equality()
+	for p.match(lexer.AND) {
+		operator := p.previous()
+		rigth := p.equality()
+		expr = NewLogical(expr, operator, rigth)
+	}
 	return expr
 }
 

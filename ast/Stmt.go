@@ -27,6 +27,21 @@ func NewExpression(expression Expr[Types],) *Expression[Types]{
     Expression: expression,
     }
 }
+type If[T Types] struct {
+    Condition Expr[T]
+    Thenbranch Stmt[T]
+    Elsebranch Stmt[T]
+}
+func (v *If[T])Accept(visitor StmtVisitor[T]) interface{} {
+    return visitor.VisitIf(*v)
+}
+func NewIf(condition Expr[Types],thenBranch Stmt[Types],elseBranch Stmt[Types],) *If[Types]{
+    return &If[Types]{
+    Condition: condition,
+    Thenbranch: thenBranch,
+    Elsebranch: elseBranch,
+    }
+}
 type Print[T Types] struct {
     Expression Expr[T]
 }
@@ -54,6 +69,7 @@ func NewVar(name Token,initializer Expr[Types],) *Var[Types]{
 type StmtVisitor[T Types] interface{
     VisitBlock(stmt Block[T]) interface{}
     VisitExpression(stmt Expression[T]) interface{}
+    VisitIf(stmt If[T]) interface{}
     VisitPrint(stmt Print[T]) interface{}
     VisitVar(stmt Var[T]) interface{}
 }

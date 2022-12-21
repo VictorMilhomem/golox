@@ -43,6 +43,21 @@ func (i *Interpreter) VisitLiteral(expr Literal[Types]) interface{} {
 	return expr.Value
 }
 
+func (i *Interpreter) VisitLogical(expr Logical[Types]) interface{} {
+	left := i.evaluate(expr.Left)
+
+	if expr.Operator.Type == lexer.OR {
+		if i.isTruthy(left) {
+			return left
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left
+		}
+	}
+	return i.evaluate(expr.Right)
+}
+
 func (i *Interpreter) VisitGrouping(expr Grouping[Types]) interface{} {
 	return i.evaluate(expr.Expression)
 }
@@ -51,7 +66,7 @@ func (i *Interpreter) VisitUnary(expr Unary[Types]) interface{} {
 	right := i.evaluate(expr.Right)
 	switch expr.Operator.Type {
 	case lexer.BANG:
-		return !i.isTruly(right)
+		return !i.isTruthy(right)
 	case lexer.MINUS:
 		i.checkNumberOperand(expr.Operator, right)
 		return -float64(right.(float64))
@@ -142,6 +157,16 @@ func (i *Interpreter) VisitExpression(stmt Expression[Types]) interface{} {
 	return nil
 }
 
+func (i *Interpreter) VisitIf(stmt If[Types]) interface{} {
+	if i.isTruthy(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.Thenbranch)
+	} else if stmt.Elsebranch != nil {
+		i.execute(stmt.Elsebranch)
+	}
+
+	return nil
+}
+
 func (i *Interpreter) VisitPrint(stmt Print[Types]) interface{} {
 	value := i.evaluate(stmt.Expression)
 	fmt.Println(i.stringify(value))
@@ -172,7 +197,7 @@ func (i *Interpreter) isEqual(a Types, b Types) bool {
 	return true
 }
 
-func (i *Interpreter) isTruly(obj Types) bool {
+func (i *Interpreter) isTruthy(obj Types) bool {
 	if obj == nil {
 		return false
 	}
