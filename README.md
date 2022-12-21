@@ -50,7 +50,7 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 - [x] Chapter 9.1 Turing Machines (Briefly)
 - [x] Chapter 9.2 Conditional Execution
 - [x] Chapter 9.3 Logical Operators
-- [ ] Chapter 9.4 While Loops
+- [x] Chapter 9.4 While Loops
 - [ ] Chapter 9.5 For Loops
 
 ## Functions

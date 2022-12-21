@@ -41,6 +41,7 @@ func main() {
 			" Stmt elseBranch",
 		"Print      : Expr expression",
 		"Var        : Token name, Expr initializer",
+		"While      : Expr condition, Stmt body",
 	}
 
 	basenames = append(basenames, "Expr", "Stmt")

@@ -66,10 +66,24 @@ func NewVar(name Token,initializer Expr[Types],) *Var[Types]{
     Initializer: initializer,
     }
 }
+type While[T Types] struct {
+    Condition Expr[T]
+    Body Stmt[T]
+}
+func (v *While[T])Accept(visitor StmtVisitor[T]) interface{} {
+    return visitor.VisitWhile(*v)
+}
+func NewWhile(condition Expr[Types],body Stmt[Types],) *While[Types]{
+    return &While[Types]{
+    Condition: condition,
+    Body: body,
+    }
+}
 type StmtVisitor[T Types] interface{
     VisitBlock(stmt Block[T]) interface{}
     VisitExpression(stmt Expression[T]) interface{}
     VisitIf(stmt If[T]) interface{}
     VisitPrint(stmt Print[T]) interface{}
     VisitVar(stmt Var[T]) interface{}
+    VisitWhile(stmt While[T]) interface{}
 }

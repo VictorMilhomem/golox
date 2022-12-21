@@ -182,6 +182,13 @@ func (i *Interpreter) VisitVar(stmt Var[Types]) interface{} {
 	return nil
 }
 
+func (i *Interpreter) VisitWhile(stmt While[Types]) interface{} {
+	for i.isTruthy(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.Body)
+	}
+	return nil
+}
+
 func (i *Interpreter) evaluate(expr Expr[Types]) Types {
 	return expr.Accept(i)
 }

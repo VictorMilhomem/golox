@@ -49,10 +49,21 @@ func (p *Parser) statement() Stmt[Types] {
 	if p.match(lexer.PRINT) {
 		return p.printStatement()
 	}
+	if p.match(lexer.WHILE) {
+		return p.whileStatement()
+	}
 	if p.match(lexer.LEFT_BRACE) {
 		return NewBlock(p.block())
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) whileStatement() Stmt[Types] {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' after 'while'")
+	condition := p.expression()
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after condition")
+	body := p.statement()
+	return NewWhile(condition, body)
 }
 
 func (p *Parser) ifStatement() Stmt[Types] {
