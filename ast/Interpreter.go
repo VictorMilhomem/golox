@@ -10,12 +10,15 @@ import (
 )
 
 type Interpreter struct {
-	env *Environment
+	globals *Environment
+	env     *Environment
 }
 
 func NewInterpreter() *Interpreter {
+	stdlib := NewStdLib()
 	return &Interpreter{
-		env: NewEnvironment(),
+		globals: stdlib.env,
+		env:     stdlib.Globals(),
 	}
 }
 
@@ -132,6 +135,29 @@ func (i *Interpreter) VisitBinary(expr Binary[Types]) interface{} {
 
 func (i *Interpreter) VisitVariable(expr Variable[Types]) interface{} {
 	return i.env.Get(expr.Name)
+}
+
+func (i *Interpreter) VisitCall(expr Call[Types]) interface{} {
+	callee := i.evaluate(expr.Callee)
+	var arguments []Types
+	for _, argument := range expr.Arguments {
+		arguments = append(arguments, i.evaluate(argument))
+	}
+
+	function, ok := callee.(LoxCallable)
+	if !ok {
+		utils.Check(NewRuntimeError(expr.Paren, "Can only call functions and classes"))
+	}
+
+	if len(arguments) != function.Arity() {
+		utils.Check(NewRuntimeError(
+			expr.Paren,
+			"Expected "+strconv.Itoa(function.Arity())+" arguments but got "+
+				strconv.Itoa(len(arguments)),
+		))
+	}
+
+	return function.Call(i, arguments)
 }
 
 /*

@@ -55,8 +55,8 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 
 ## Functions
 
-- [ ] Chapter 10.1 Function Calls
-- [ ] Chapter 10.2 Native Functions
+- [x] Chapter 10.1 Function Calls
+- [x] Chapter 10.2 Native Functions
 - [ ] Chapter 10.3 Function Declarations
 - [ ] Chapter 10.4 Function Objects
 - [ ] Chapter 10.5 Return Statements

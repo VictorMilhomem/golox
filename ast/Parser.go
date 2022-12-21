@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/VictorMilhomem/glox/glox/lexer"
 	"github.com/VictorMilhomem/glox/glox/utils"
 )
@@ -243,7 +245,36 @@ func (p *Parser) unary() Expr[Types] {
 		expr := NewUnary(operator, right)
 		return expr
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() Expr[Types] {
+	expr := p.primary()
+	for {
+		if p.match(lexer.LEFT_PAREN) {
+			expr = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
+	return expr
+}
+
+func (p *Parser) finishCall(callee Expr[Types]) Expr[Types] {
+	var arguments []Expr[Types]
+	if !p.check(lexer.RIGHT_PAREN) {
+		for {
+			if len(arguments) >= 255 {
+				fmt.Println(NewParserError(p.peek(), "Can't have more than 255 arguments").Error())
+			}
+			arguments = append(arguments, p.expression())
+			if !p.match(lexer.COMMA) {
+				break
+			}
+		}
+	}
+	paren := p.consume(lexer.RIGHT_PAREN, "Expect ')' after arguments")
+	return NewCall(callee, paren, arguments)
 }
 
 func (p *Parser) primary() Expr[Types] {

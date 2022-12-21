@@ -37,6 +37,21 @@ func NewBinary(left Expr[Types],operator Token,right Expr[Types],) *Binary[Types
     Right: right,
     }
 }
+type Call[T Types] struct {
+    Callee Expr[T]
+    Paren Token
+    Arguments []Expr[Types]
+}
+func (v *Call[T])Accept(visitor ExprVisitor[T]) interface{} {
+    return visitor.VisitCall(*v)
+}
+func NewCall(callee Expr[Types],paren Token,arguments []Expr[Types],) *Call[Types]{
+    return &Call[Types]{
+    Callee: callee,
+    Paren: paren,
+    Arguments: arguments,
+    }
+}
 type Grouping[T Types] struct {
     Expression Expr[T]
 }
@@ -101,6 +116,7 @@ func NewVariable(name Token,) *Variable[Types]{
 type ExprVisitor[T Types] interface{
     VisitAssign(expr Assign[T]) interface{}
     VisitBinary(expr Binary[T]) interface{}
+    VisitCall(expr Call[T]) interface{}
     VisitGrouping(expr Grouping[T]) interface{}
     VisitLiteral(expr Literal[T]) interface{}
     VisitLogical(expr Logical[T]) interface{}
