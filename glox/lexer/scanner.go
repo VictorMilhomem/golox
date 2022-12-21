@@ -106,15 +106,36 @@ func (s *Scanner) scanToken() {
 		}
 	case "/":
 		if s.match("/") {
+			// Single line comments
 			for s.peek() != "\n" && !s.isAtEnd() {
 				s.advance()
 			}
 		} else if s.match("*") {
-			for s.peek() != "*" && s.peekNext() != "/" && !s.isAtEnd() {
+			// Multi line comments
+			toMatch := 1
+			for !s.isAtEnd() {
+				if s.peek() == "*" && s.peekNext() == "/" {
+					toMatch--
+				}
+				if s.peek() == "/" && s.peekNext() == "*" {
+					toMatch++
+				}
 				if s.peek() == "\n" {
 					s.line++
 				}
+				if toMatch == 0 {
+					break
+				}
 				s.advance()
+			}
+			if s.peek() == "*" && s.peekNext() == "/" {
+				s.advance()
+				s.advance()
+			} else {
+				utils.Check(&utils.LoxError{
+					Line: s.line,
+					Msg:  "No closing of block comment",
+				})
 			}
 		} else {
 			s._addToken(SLASH)
