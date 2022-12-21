@@ -27,6 +27,21 @@ func NewExpression(expression Expr[Types],) *Expression[Types]{
     Expression: expression,
     }
 }
+type Function[T Types] struct {
+    Name Token
+    Params []Token
+    Body []Stmt[Types]
+}
+func (v *Function[T])Accept(visitor StmtVisitor[T]) interface{} {
+    return visitor.VisitFunction(*v)
+}
+func NewFunction(name Token,params []Token,body []Stmt[Types],) *Function[Types]{
+    return &Function[Types]{
+    Name: name,
+    Params: params,
+    Body: body,
+    }
+}
 type If[T Types] struct {
     Condition Expr[T]
     Thenbranch Stmt[T]
@@ -82,6 +97,7 @@ func NewWhile(condition Expr[Types],body Stmt[Types],) *While[Types]{
 type StmtVisitor[T Types] interface{
     VisitBlock(stmt Block[T]) interface{}
     VisitExpression(stmt Expression[T]) interface{}
+    VisitFunction(stmt Function[T]) interface{}
     VisitIf(stmt If[T]) interface{}
     VisitPrint(stmt Print[T]) interface{}
     VisitVar(stmt Var[T]) interface{}

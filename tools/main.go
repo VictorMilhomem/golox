@@ -38,6 +38,8 @@ func main() {
 	stmts := []string{
 		"Block      : []Stmt[Types] statements",
 		"Expression : Expr expression",
+		"Function   : Token name, []Token params," +
+			" []Stmt[Types] body",
 		"If         : Expr condition, Stmt thenBranch," +
 			" Stmt elseBranch",
 		"Print      : Expr expression",

@@ -28,10 +28,36 @@ func (p *Parser) Parse() []Stmt[Types] {
 }
 
 func (p *Parser) declaration() Stmt[Types] {
+	if p.match(lexer.FUN) {
+		return p.function("function")
+	}
+
 	if p.match(lexer.VAR) {
 		return p.varDeclaration()
 	}
 	return p.statement()
+}
+
+func (p *Parser) function(kind string) *Function[Types] {
+	name := p.consume(lexer.IDENTIFIER, "Expect "+kind+" name")
+	p.consume(lexer.LEFT_PAREN, "Expect '(' after "+kind+" name")
+	var parameters []lexer.Token
+	if !p.check(lexer.RIGHT_PAREN) {
+		for {
+			if len(parameters) >= 255 {
+				fmt.Println(NewParserError(p.peek(), "Can't have more than 255 parameters").Error())
+			}
+			parameters = append(parameters, p.consume(lexer.IDENTIFIER, "Expect parameter name"))
+			if !p.match(lexer.COMMA) {
+				break
+			}
+		}
+	}
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after parameters")
+
+	p.consume(lexer.LEFT_BRACE, "Expect '{' before "+kind+" body")
+	body := p.block()
+	return NewFunction(name, parameters, body)
 }
 
 func (p *Parser) varDeclaration() Stmt[Types] {
