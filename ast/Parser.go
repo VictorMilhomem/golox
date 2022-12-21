@@ -52,10 +52,62 @@ func (p *Parser) statement() Stmt[Types] {
 	if p.match(lexer.WHILE) {
 		return p.whileStatement()
 	}
+	if p.match(lexer.FOR) {
+		return p.forStatement()
+	}
 	if p.match(lexer.LEFT_BRACE) {
 		return NewBlock(p.block())
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) forStatement() Stmt[Types] {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' after 'for'")
+
+	// for (var i = 0)
+	var initializer Stmt[Types]
+	if p.match(lexer.SEMICOLON) {
+		initializer = nil
+	} else if p.match(lexer.VAR) {
+		initializer = p.varDeclaration()
+	} else {
+		initializer = p.expressionStatement()
+	}
+	// for (var i = 0; i < 10)
+	var condition Expr[Types]
+	if !p.check(lexer.SEMICOLON) {
+		condition = p.expression()
+	}
+	p.consume(lexer.SEMICOLON, "Expect ';' after loop condition")
+
+	// for (var i = 0; i < 10; i++)
+	var increment Expr[Types]
+	if !p.check(lexer.RIGHT_PAREN) {
+		increment = p.expression()
+	}
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after for clauses")
+	body := p.statement()
+
+	if increment != nil {
+		body = NewBlock([]Stmt[Types]{
+			body,
+			NewExpression(increment),
+		})
+	}
+
+	if condition == nil {
+		condition = NewLiteral(true)
+	}
+	body = NewWhile(condition, body)
+
+	if initializer != nil {
+		body = NewBlock([]Stmt[Types]{
+			initializer,
+			body,
+		})
+	}
+
+	return body
 }
 
 func (p *Parser) whileStatement() Stmt[Types] {
