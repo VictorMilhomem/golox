@@ -1,0 +1,6 @@
+
+fun sayhi() {
+    print "Ola mundo";
+}
+
+sayhi();

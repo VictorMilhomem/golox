@@ -144,7 +144,7 @@ func (i *Interpreter) VisitCall(expr Call[Types]) interface{} {
 		arguments = append(arguments, i.evaluate(argument))
 	}
 
-	function, ok := callee.(LoxCallable)
+	function, ok := callee.(*LoxFunction)
 	if !ok {
 		utils.Check(NewRuntimeError(expr.Paren, "Can only call functions and classes"))
 	}
@@ -180,6 +180,12 @@ func (i *Interpreter) executeBlock(stmts []Stmt[Types], env *Environment) {
 
 func (i *Interpreter) VisitExpression(stmt Expression[Types]) interface{} {
 	i.evaluate(stmt.Expression)
+	return nil
+}
+
+func (i *Interpreter) VisitFunction(stmt Function[Types]) interface{} {
+	function := NewLoxFunction(stmt)
+	i.env.Define(stmt.Name.Lexeme, function)
 	return nil
 }
 

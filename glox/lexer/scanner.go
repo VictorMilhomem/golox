@@ -156,7 +156,7 @@ func (s *Scanner) scanToken() {
 		} else {
 			utils.Check(&utils.LoxError{
 				Line: s.line,
-				Msg:  "Unexpected character",
+				Msg:  "Unexpected character '" + string(s.source[s.current]) + "'",
 			})
 		}
 	}
@@ -196,11 +196,11 @@ func (s *Scanner) scanIdetifier() {
 		s.advance()
 	}
 	text := string(s.source[s.start:s.current])
-	var t TokenType = s.Keywords[text]
-	if t == 0 {
-		t = IDENTIFIER
+	tok_type, ok := s.Keywords[text]
+	if !ok {
+		tok_type = IDENTIFIER
 	}
-	s._addToken(t)
+	s._addToken(tok_type)
 }
 
 func (s *Scanner) scanNumber() {
