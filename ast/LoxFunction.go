@@ -10,9 +10,19 @@ func NewLoxFunction(decl Function[Types]) *LoxFunction {
 	}
 }
 
-func (fn *LoxFunction) Call(interpreter *Interpreter, arguments []Types) interface{} {
+func (fn *LoxFunction) Call(interpreter *Interpreter, arguments []Types) (retvalue interface{}) {
 	env := interpreter.env
 	size := len(fn.declaration.Params)
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(ReturnT); ok {
+				retvalue = v.Value
+				return
+			}
+			panic(err)
+		}
+	}()
 	for i := 0; i < size; i++ {
 		env.Define(fn.declaration.Params[i].Lexeme, arguments[i])
 	}

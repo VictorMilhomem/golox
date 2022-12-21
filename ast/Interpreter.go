@@ -205,6 +205,18 @@ func (i *Interpreter) VisitPrint(stmt Print[Types]) interface{} {
 	return nil
 }
 
+type ReturnT struct {
+	Value interface{}
+}
+
+func (i *Interpreter) VisitReturn(stmt Return[Types]) interface{} {
+	var value Types
+	if stmt.Value != nil {
+		value = i.evaluate(stmt.Value)
+	}
+	panic(ReturnT{Value: value})
+}
+
 func (i *Interpreter) VisitVar(stmt Var[Types]) interface{} {
 	var value Types
 	if stmt.Initializer != nil {

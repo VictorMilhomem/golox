@@ -68,6 +68,19 @@ func NewPrint(expression Expr[Types],) *Print[Types]{
     Expression: expression,
     }
 }
+type Return[T Types] struct {
+    Keyword Token
+    Value Expr[T]
+}
+func (v *Return[T])Accept(visitor StmtVisitor[T]) interface{} {
+    return visitor.VisitReturn(*v)
+}
+func NewReturn(keyword Token,value Expr[Types],) *Return[Types]{
+    return &Return[Types]{
+    Keyword: keyword,
+    Value: value,
+    }
+}
 type Var[T Types] struct {
     Name Token
     Initializer Expr[T]
@@ -100,6 +113,7 @@ type StmtVisitor[T Types] interface{
     VisitFunction(stmt Function[T]) interface{}
     VisitIf(stmt If[T]) interface{}
     VisitPrint(stmt Print[T]) interface{}
+    VisitReturn(stmt Return[T]) interface{}
     VisitVar(stmt Var[T]) interface{}
     VisitWhile(stmt While[T]) interface{}
 }

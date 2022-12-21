@@ -77,6 +77,9 @@ func (p *Parser) statement() Stmt[Types] {
 	if p.match(lexer.PRINT) {
 		return p.printStatement()
 	}
+	if p.match(lexer.RETURN) {
+		return p.returnStatement()
+	}
 	if p.match(lexer.WHILE) {
 		return p.whileStatement()
 	}
@@ -87,6 +90,16 @@ func (p *Parser) statement() Stmt[Types] {
 		return NewBlock(p.block())
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) returnStatement() Stmt[Types] {
+	keyword := p.previous()
+	var value Expr[Types]
+	if !p.check(lexer.SEMICOLON) {
+		value = p.expression()
+	}
+	p.consume(lexer.SEMICOLON, "Expect ';' after return value.")
+	return NewReturn(keyword, value)
 }
 
 func (p *Parser) forStatement() Stmt[Types] {
