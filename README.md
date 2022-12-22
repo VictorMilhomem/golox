@@ -64,7 +64,12 @@ Go implementation of Lox a Java interpreter from the book [Crafting Interpreters
 
 ```
 For the return statements chapter, it works fine until we try to make two recursive calls
-inside the return statement, trying to fixe it
+inside the return statement:
+fun fib(n) {
+  if (n <= 1) return n;
+  print n;
+  return fib(n-1) + fib(n-2);
+}
 ```
 
 
