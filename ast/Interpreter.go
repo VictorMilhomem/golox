@@ -10,16 +10,16 @@ import (
 )
 
 type Interpreter struct {
-	globals *Environment
+	Globals *Environment
 	env     *Environment
 }
 
 func NewInterpreter() *Interpreter {
-	stdlib := NewStdLib()
-	return &Interpreter{
-		globals: stdlib.env,
-		env:     stdlib.Globals(),
+	s := Interpreter{
+		Globals: NewEnvironment(),
 	}
+	s.env = s.Globals
+	return &s
 }
 
 func (i *Interpreter) Interpret(statements []Stmt[Types], repl bool) {
@@ -88,6 +88,27 @@ func (i *Interpreter) VisitBinary(expr Binary[Types]) interface{} {
 	right := i.evaluate(expr.Right)
 
 	switch expr.Operator.Type {
+	case lexer.PLUS:
+		_, leftIsFloat := left.(float64)
+		_, rightIsFloat := right.(float64)
+		if leftIsFloat && rightIsFloat {
+			return left.(float64) + right.(float64)
+		}
+		_, leftIsString := left.(string)
+		_, rightIsString := right.(string)
+		if leftIsString && rightIsString {
+			return left.(string) + right.(string)
+		}
+		utils.Check(NewRuntimeError(expr.Operator, "Operands must be two numbers or two strings."))
+	case lexer.MINUS:
+		i.checkNumberOperands(expr.Operator, left, right)
+		return left.(float64) - right.(float64)
+	case lexer.SLASH:
+		i.checkNumberOperands(expr.Operator, left, right)
+		return float64(left.(float64)) / float64(right.(float64))
+	case lexer.STAR:
+		i.checkNumberOperands(expr.Operator, left, right)
+		return float64(left.(float64)) * float64(right.(float64))
 	case lexer.GREATER:
 		i.checkNumberOperands(expr.Operator, left, right)
 		return float64(left.(float64)) > float64(right.(float64))
@@ -100,34 +121,13 @@ func (i *Interpreter) VisitBinary(expr Binary[Types]) interface{} {
 	case lexer.LESS_EQUAL:
 		i.checkNumberOperands(expr.Operator, left, right)
 		return float64(left.(float64)) <= float64(right.(float64))
-	case lexer.BANG_EQUAL:
-		i.checkNumberOperands(expr.Operator, left, right)
-		return !i.isEqual(left, right)
 	case lexer.EQUAL_EQUAL:
-		i.checkNumberOperands(expr.Operator, left, right)
-		return i.isEqual(left, right)
-	case lexer.MINUS:
-		i.checkNumberOperands(expr.Operator, left, right)
-		return left.(float64) - right.(float64)
-	case lexer.PLUS:
-		l, okl := left.(string)
-		r, okr := right.(string)
-		if okl && okr {
-			return string(l) + string(r)
-		}
+		// i.checkNumberOperands(expr.Operator, left, right)
+		return left == right
+	case lexer.BANG_EQUAL:
+		// i.checkNumberOperands(expr.Operator, left, right)
+		return left != right
 
-		lf, okfl := left.(float64)
-		rr, okfr := right.(float64)
-		if okfl && okfr {
-			return float64(lf) + float64(rr)
-		}
-		utils.Check(NewRuntimeError(expr.Operator, "Operands must be two numbers or two strings."))
-	case lexer.SLASH:
-		i.checkNumberOperands(expr.Operator, left, right)
-		return float64(left.(float64)) / float64(right.(float64))
-	case lexer.STAR:
-		i.checkNumberOperands(expr.Operator, left, right)
-		return float64(left.(float64)) * float64(right.(float64))
 	}
 
 	return nil
@@ -139,12 +139,12 @@ func (i *Interpreter) VisitVariable(expr Variable[Types]) interface{} {
 
 func (i *Interpreter) VisitCall(expr Call[Types]) interface{} {
 	callee := i.evaluate(expr.Callee)
-	var arguments []Types
+	var arguments []Types = []Types{}
 	for _, argument := range expr.Arguments {
 		arguments = append(arguments, i.evaluate(argument))
 	}
 
-	function, ok := callee.(*LoxFunction)
+	function, ok := (callee).(LoxFunction)
 	if !ok {
 		utils.Check(NewRuntimeError(expr.Paren, "Can only call functions and classes"))
 	}
@@ -206,7 +206,7 @@ func (i *Interpreter) VisitPrint(stmt Print[Types]) interface{} {
 }
 
 type ReturnT struct {
-	Value interface{}
+	Value Types
 }
 
 func (i *Interpreter) VisitReturn(stmt Return[Types]) interface{} {
@@ -235,17 +235,6 @@ func (i *Interpreter) VisitWhile(stmt While[Types]) interface{} {
 
 func (i *Interpreter) evaluate(expr Expr[Types]) Types {
 	return expr.Accept(i)
-}
-
-func (i *Interpreter) isEqual(a Types, b Types) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil {
-		return false
-	}
-
-	return true
 }
 
 func (i *Interpreter) isTruthy(obj Types) bool {

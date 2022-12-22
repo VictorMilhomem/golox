@@ -94,7 +94,7 @@ func (p *Parser) statement() Stmt[Types] {
 
 func (p *Parser) returnStatement() Stmt[Types] {
 	keyword := p.previous()
-	var value Expr[Types]
+	var value Expr[Types] = nil
 	if !p.check(lexer.SEMICOLON) {
 		value = p.expression()
 	}
@@ -249,7 +249,7 @@ func (p *Parser) equality() Expr[Types] {
 
 func (p *Parser) comparison() Expr[Types] {
 	expr := p.term()
-	for p.match(lexer.GREATER, lexer.GREATER_EQUAL, lexer.LESS, lexer.LESS_EQUAL) {
+	for p.match(lexer.GREATER, lexer.GREATER_EQUAL, lexer.LESS, lexer.LESS_EQUAL, lexer.EQUAL_EQUAL) {
 		operator := p.previous()
 		right := p.term()
 		expr = NewBinary(expr, operator, right)
