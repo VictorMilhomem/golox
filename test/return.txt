@@ -11,7 +11,8 @@ fun fib(n) {
 print fib(5);
 
 fun plus(a, b){
-  return a + b;
+  var c = 3;
+  return a + b + c;
 }
 
 

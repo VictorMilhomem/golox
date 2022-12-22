@@ -94,7 +94,7 @@ func (p *Parser) statement() Stmt[Types] {
 
 func (p *Parser) returnStatement() Stmt[Types] {
 	keyword := p.previous()
-	var value Expr[Types] = nil
+	var value Expr[Types]
 	if !p.check(lexer.SEMICOLON) {
 		value = p.expression()
 	}

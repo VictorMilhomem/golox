@@ -207,11 +207,11 @@ func (i *Interpreter) VisitPrint(stmt Print[Types]) interface{} {
 }
 
 type ReturnT struct {
-	Value Types
+	Value interface{}
 }
 
 func (i *Interpreter) VisitReturn(stmt Return[Types]) interface{} {
-	var value Types
+	var value interface{}
 	if stmt.Value != nil {
 		value = i.evaluate(stmt.Value)
 	}
