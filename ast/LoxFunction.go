@@ -10,7 +10,7 @@ func NewLoxFunction(decl Function[Types]) LoxFunction {
 	}
 }
 
-func (fn LoxFunction) Call(interpreter *Interpreter, arguments []Types) (retvalue interface{}) {
+func (fn LoxFunction) Call(interpreter *Interpreter, arguments []interface{}) (retvalue interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			if v, ok := err.(ReturnT); ok {
@@ -20,7 +20,7 @@ func (fn LoxFunction) Call(interpreter *Interpreter, arguments []Types) (retvalu
 			panic(err)
 		}
 	}()
-	env := NewEnvironmentEnclosing(interpreter.Globals)
+	env := NewEnvironmentEnclosing(interpreter.globals)
 
 	for i, v := range fn.declaration.Params {
 		env.Define(v.Lexeme, arguments[i])

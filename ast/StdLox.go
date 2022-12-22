@@ -22,8 +22,8 @@ type Clock struct{}
 // Arity() int
 // Call(interpreter *Interpreter, arguments []Types) Types
 
-func (clock *Clock) Call(interpreter *Interpreter, arguments []Types) Types {
-	return time.Now().UnixNano() / int64(time.Millisecond)
+func (clock *Clock) Call(interpreter *Interpreter, arguments []interface{}) interface{} {
+	return float64(time.Now().UnixMilli())
 }
 
 func (clock *Clock) Arity() int {

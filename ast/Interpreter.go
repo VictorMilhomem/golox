@@ -10,16 +10,17 @@ import (
 )
 
 type Interpreter struct {
-	Globals *Environment
+	globals *Environment
 	env     *Environment
 }
 
 func NewInterpreter() *Interpreter {
-	s := Interpreter{
-		Globals: NewEnvironment(),
+	globals := NewEnvironmentEnclosing(nil)
+	globals.Define("clock", Clock{})
+	return &Interpreter{
+		globals: globals,
+		env:     globals,
 	}
-	s.env = s.Globals
-	return &s
 }
 
 func (i *Interpreter) Interpret(statements []Stmt[Types], repl bool) {
@@ -139,12 +140,12 @@ func (i *Interpreter) VisitVariable(expr Variable[Types]) interface{} {
 
 func (i *Interpreter) VisitCall(expr Call[Types]) interface{} {
 	callee := i.evaluate(expr.Callee)
-	var arguments []Types = []Types{}
+	arguments := make([]interface{}, 0)
 	for _, argument := range expr.Arguments {
 		arguments = append(arguments, i.evaluate(argument))
 	}
 
-	function, ok := (callee).(LoxFunction)
+	function, ok := (callee).(LoxCallable)
 	if !ok {
 		utils.Check(NewRuntimeError(expr.Paren, "Can only call functions and classes"))
 	}
