@@ -169,7 +169,7 @@ func isDigit(c string) bool {
 
 func isAlpha(c string) bool {
 	// change to regex
-	return (c >= "a" && c <= "z") || (c >= "A" && c >= "Z") || c == "_"
+	return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_"
 }
 
 func isAplhNumeric(c string) bool {
